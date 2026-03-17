@@ -205,12 +205,5 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
-
-# Ignore everything in the root directory
-/*
-
-# Except the airflow directory
-!/airflow/
-
-# Except the .gitignore file itself
-!/.gitignore
+# Agent specific files
+.agent/
