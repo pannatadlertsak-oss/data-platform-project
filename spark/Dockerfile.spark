@@ -1,0 +1,26 @@
+FROM apache/spark:3.5.0
+
+USER root
+
+# ติดตั้ง Python และ Dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends python3 python3-pip libpq-dev build-essential && \
+    ln -sf /usr/bin/python3 /usr/bin/python
+COPY requirements.txt .
+RUN pip3 install --no-cache-dir -r requirements.txt && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# สร้าง User 1000
+RUN useradd -u 1000 -m -d /home/spark -s /bin/bash sparkuser || true
+
+# สร้างและกำหนดสิทธิ์เฉพาะโฟลเดอร์ที่เราต้องใช้ทำงาน (Work, App, Events)
+RUN mkdir -p /opt/spark/work /opt/spark/work-dir /opt/spark/app /opt/spark/events && \
+    chown -R 1000:1000 /opt/spark/work && \    
+    chown -R 1000:1000 /opt/spark/work-dir && \
+    chown -R 1000:1000 /opt/spark/app && \
+    chown -R 1000:1000 /opt/spark/events && \
+    chown -R 1000:1000 /home/spark
+
+ENV HADOOP_OPTS="-Djava.security.krb5.conf=/dev/null"
+WORKDIR /opt/spark/app
+USER sparkuser
